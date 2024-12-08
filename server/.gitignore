@@ -3,3 +3,5 @@
 
 # Ignore node_modules directory to prevent large files from being tracked
 node_modules/
+
+node_modules/
