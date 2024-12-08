@@ -1,0 +1,5 @@
+# Ignore the .env file to keep environment variables secure
+.env
+
+# Ignore node_modules directory to prevent large files from being tracked
+node_modules/
