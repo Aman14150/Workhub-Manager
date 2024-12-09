@@ -265,6 +265,11 @@ export const updateTask = async (req, res) => {
 
     const task = await Task.findById(id);
 
+    if (!task) {
+      return res.status(404).json({ status: false, message: "Task not found" });
+    }
+
+    // Update task properties
     task.title = title;
     task.date = date;
     task.priority = priority.toLowerCase();
@@ -272,11 +277,13 @@ export const updateTask = async (req, res) => {
     task.stage = stage.toLowerCase();
     task.team = team;
 
-    await task.save();
+    const updatedTask = await task.save();  // Save the updated task
 
-    res
-      .status(200)
-      .json({ status: true, message: "Task updated successfully." });
+    res.status(200).json({
+      status: true,
+      message: "Task updated successfully.",
+      task: updatedTask,  // Return the updated task
+    });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });

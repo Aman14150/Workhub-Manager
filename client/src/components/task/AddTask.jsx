@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModalWrapper from "../ModalWrapper";
 import { Dialog } from "@headlessui/react";
 import Textbox from "../Textbox";
@@ -13,70 +13,81 @@ import { toast } from "sonner";
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORIRY = ["HIGH", "MEDIUM", "NORMAL"];
 
-const AddTask = ({ open, setOpen, handleAddTask }) => {
-  const task = ""; // You may use it to populate task details if you are editing an existing task.
-
+const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
   const {
     register,
-    handleSubmit,
+    handleSubmit, // Add handleSubmit from useForm
     reset,
+    uploading,
     formState: { errors },
   } = useForm();
-  
-  const [assets, setAssets] = useState([]); // Store the selected assets
-  const [uploading, setUploading] = useState(false);
-  // const [tasks, setTasks] = useState([])
+
+  const [assets, setAssets] = useState(task?.assets || []);
   const [team, setTeam] = useState(task?.team || []);
   const [stage, setStage] = useState(task?.stage || LISTS[0]);
   const [priority, setPriority] = useState(task?.priority?.toUpperCase() || PRIORIRY[2]);
+  
+  useEffect(() => {
+    if (task) {
+      reset({
+        title: task.title,
+        date: task.date,
+        priority: task.priority,
+        team: task.team,
+        assets: task.assets, 
+        taskstage: task.stage,
+        // other fields
+      });
+    }
+  }, [task, reset]);
+
+  const submitHandler = async (data) => {
+    try {
+      const { title, date } = data;
+      const assetNames = assets.map((file) => file.name);
+      const taskData = {
+        ...task,
+        title,
+        team,
+        stage,
+        date,
+        priority,
+        assets: assetNames,
+      };
+
+      console.log('Task data being sent:', taskData); 
+
+      if (task?._id) {
+        // Update Task
+        const response = await axios.put(`/api/task/update/${task._id}`, taskData);
+        console.log(response, 'success');
+        handleUpdateTask(response.data.task);
+        toast.success("Task updated successfully");
+      } else {
+        // Create Task
+        const response = await axios.post("/api/task/create", taskData);
+        handleAddTask(response.data.task);
+        toast.success("Task created successfully");
+      }
+
+      clearForm();
+      setOpen(false);
+    } catch (error) {
+      console.error("Error saving task:", error);
+      toast.error("Failed to save task");
+    }
+  };
 
   const clearForm = () => {
-    reset({ // Reset form fields to initial or default values
+    reset({
       title: "",
       date: "",
     });
+    setAssets([]);
     setTeam([]);
     setStage(LISTS[0]);
     setPriority(PRIORIRY[2]);
-    setAssets([]);
   };
-
-const submitHandler = async (data) => {
-  console.log(data);
-
-  try {
-    const { title, date } = data;
-
-    // Convert the files (assets) to an array of strings (file names)
-    const assetNames = assets.map(file => file.name); // Extract file names
-
-    const taskData = {
-      title,
-      team,
-      data,
-      stage,
-      date,
-      priority,
-      assets: assetNames,  // Sending array of file names
-    };
-
-    // Make the POST request to the backend
-    const response = await axios.post("/api/task/create", taskData);
-
-    // Handle success or failure response from the backend
-    if (response.data.status) {
-      toast.success(response.data.message); // Show success toast
-      handleAddTask(response.data.task); 
-      clearForm(); // Clear the form on successful submission
-      setOpen(false); // Close the modal
-    } else {
-      toast.error(response.data.message); // Show error toast
-    }
-  } catch (error) {
-    console.error("Error saving task:", error);
-    toast.error("Failed to save task"); // Show error toast
-  }
-};
 
   // Handle file uploads
   const handleSelect = (e) => {
@@ -96,7 +107,7 @@ const submitHandler = async (data) => {
         <Dialog.Title
         as="h2"className="text-base font-bold leading-6 text-gray-900 mb-4"
         >
-        {"Add Task"}</Dialog.Title>
+        {task?._id ? "Update Task" : "Add Task"}</Dialog.Title>
         
         <div className="mt-2 flex flex-col gap-6">
           <Textbox
@@ -192,7 +203,7 @@ const submitHandler = async (data) => {
               <span className="text-sm py-2 text-red-500">Uploading assets</span>
             ) : (
               <Button
-                label="Create"
+              label={task?._id ? "Update" : "Create"}
                 type="submit"
                 className="bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700  sm:w-auto"
               />

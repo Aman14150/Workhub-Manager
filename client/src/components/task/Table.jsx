@@ -15,6 +15,7 @@ import Button from "../Button";
 import ConfirmatioDialog from "../Dialogs";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import AddTask from "./AddTask";
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -30,26 +31,26 @@ const Table = ({ tasks }) => {
   const { user } = useSelector((state) => state.auth); // Fetch user data from Redux
   const isAdmin = user?.isAdmin;
 
+  const [open, setOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState(null);
+
   const handleEditClick = (task) => {
     setTaskToEdit(task);
     setOpen(true);
   };
 
-  // const handleUpdateTask = async (updatedTask) => {
-  //   try {
-  //     const response = await axios.put(`/api/task/${updatedTask._id}`, updatedTask);
-  //     const updatedTasks = tasksList.map((task) =>
-  //       task._id === updatedTask._id ? response.data.task : task
-  //     );
-  //     setTasks(updatedTasks);
-  //     toast.success("Task updated successfully!");
-  //   } catch (error) {
-  //     console.error("Error updating task:", error);
-  //     toast.error("Failed to update task.");
-  //   } finally {
-  //     setOpen(false);
-  //   }
-  // };
+  const handleUpdateTask = (updatedTask) => {
+    if (!updatedTask || !updatedTask._id) {
+      console.error("Invalid task data:", updatedTask);
+      return;
+    }
+  
+    const updatedTasks = tasks.map((t) =>
+      t._id === updatedTask._id ? updatedTask : t
+    );
+    setTasks(updatedTasks);
+  };
+  
 
   const deleteClicks = (id) => {
     setSelected(id);
@@ -124,7 +125,7 @@ const Table = ({ tasks }) => {
         <div className="flex">
           {task?.team?.map((m, index) => (
             <div
-              key={m._id}
+              key={m._id || index}
               className={clsx(
                 "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
                 BGS[index % BGS?.length]
@@ -170,6 +171,18 @@ const Table = ({ tasks }) => {
           </table>
         </div>
       </div>
+
+      <AddTask
+        open={open}
+        setOpen={setOpen}
+        task={taskToEdit} // Pass the selected task to the modal
+        handleUpdateTask={(updatedTask) => {
+          const updatedTasks = tasks.map((t) =>
+            t._id === updatedTask._id ? updatedTask : t
+          );
+          setTasks(updatedTasks);
+        }}
+      />
 
       <ConfirmatioDialog
         open={openDialog}
