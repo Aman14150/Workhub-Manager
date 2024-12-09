@@ -32,12 +32,21 @@ const Tasks = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState([]);
-
+  
   const { user } = useSelector((state) => state.auth); // Fetch user data from Redux
   const isAdmin = user?.isAdmin; // Check admin status dynamically
 
-  const handleAddTask = (newTask) => {
-    setTasks((prevTasks) => [...prevTasks, newTask]); // Update tasks list with new task
+  const handleAddTask = async (newTask) => {
+    try {
+      // Add the new task optimistically
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+  
+      // Optionally, refetch the tasks to ensure consistency
+      await fetchTasks(); // Refetch tasks after adding the new task
+    } catch (error) {
+      console.error("Error adding task", error);
+      // Optionally, show a toast notification
+    }
   };
 
   const status = params?.status || "";
@@ -45,9 +54,22 @@ const Tasks = () => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/task/"); // Fetch tasks from the server
+      const response = await axios.get("/api/task");
+
       if (response.data.status) {
-        setTasks(response.data.tasks); // Store the fetched tasks in state
+        let fetchedTasks = response.data.tasks;
+
+        if (!isAdmin) {
+          fetchedTasks = fetchedTasks.filter((task) =>
+            task.team.some((member) => member._id === user._id)
+          );
+        }
+
+        if (status) {
+          fetchedTasks = fetchedTasks.filter((task) => task.stage === status);
+        }
+
+        setTasks(fetchedTasks);
       } else {
         alert("Failed to fetch tasks");
       }
@@ -60,8 +82,8 @@ const Tasks = () => {
   };
 
   useEffect(() => {
-    fetchTasks(); // Fetch tasks when component mounts
-  }, []);
+    fetchTasks();
+  }, [status]);
 
   return loading ? (
     <div className="py-10">
@@ -70,7 +92,7 @@ const Tasks = () => {
   ) : (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
-        <Title title={status ? `${status} All Tasks` : "All Tasks"} />
+        <Title title={status ? `${status} Tasks` : "All Tasks"} />
 
         {isAdmin && ( // Button is only visible if user is admin
           <Button

@@ -95,6 +95,7 @@ const MobileSidebar = () => {
 function App() {
   return (
     <main className='w-full min-h-screen bg-[#f3f4f6] '>
+      <Toaster richColors />
       <Routes>
         <Route element={<Layout />}>
           <Route path='/' element={<Navigate to='/login' />} />
@@ -111,7 +112,7 @@ function App() {
         <Route path='/login' element={<Login />} />
       </Routes>
 
-      <Toaster richColors />
+      
     </main>
   );
 }

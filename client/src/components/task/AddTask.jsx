@@ -22,14 +22,13 @@ const AddTask = ({ open, setOpen, handleAddTask }) => {
     reset,
     formState: { errors },
   } = useForm();
-  const [team, setTeam] = useState(task?.team || []);
-  const [stage, setStage] = useState(task?.stage?.toUpperCase() || LISTS[0]);
-  const [priority, setPriority] = useState(
-    task?.priority?.toUpperCase() || PRIORIRY[2]
-  );
+  
   const [assets, setAssets] = useState([]); // Store the selected assets
   const [uploading, setUploading] = useState(false);
   // const [tasks, setTasks] = useState([])
+  const [team, setTeam] = useState(task?.team || []);
+  const [stage, setStage] = useState(task?.stage || LISTS[0]);
+  const [priority, setPriority] = useState(task?.priority?.toUpperCase() || PRIORIRY[2]);
 
   const clearForm = () => {
     reset({ // Reset form fields to initial or default values
@@ -54,6 +53,7 @@ const submitHandler = async (data) => {
     const taskData = {
       title,
       team,
+      data,
       stage,
       date,
       priority,
@@ -73,8 +73,8 @@ const submitHandler = async (data) => {
       toast.error(response.data.message); // Show error toast
     }
   } catch (error) {
-    console.error("Error creating task:", error);
-    toast.error("Failed to create task"); // Show error toast
+    console.error("Error saving task:", error);
+    toast.error("Failed to save task"); // Show error toast
   }
 };
 
@@ -92,13 +92,12 @@ const submitHandler = async (data) => {
     }}
   >
       <form onSubmit={handleSubmit(submitHandler)}>
-        <Dialog.Title
-          as="h2"
-          className="text-base font-bold leading-6 text-gray-900 mb-4"
-        >
-          {task ? "UPDATE TASK" : "ADD TASK"}
-        </Dialog.Title>
 
+        <Dialog.Title
+        as="h2"className="text-base font-bold leading-6 text-gray-900 mb-4"
+        >
+        {"Add Task"}</Dialog.Title>
+        
         <div className="mt-2 flex flex-col gap-6">
           <Textbox
             placeholder="Task Title"
@@ -161,39 +160,39 @@ const submitHandler = async (data) => {
           </div>
 
           {/* Display selected files (assets) */}
-{assets.length > 0 && (
-  <div className="mt-4 flex justify-between items-center">
-    {/* Displaying selected files in a row */}
-    <div className="flex flex-wrap gap-2">
-      <h3 className="text-sm font-semibold">Selected Assets:</h3>
-      {/* Displaying each selected file name */}
-      {assets.map((file, index) => (
-        <span
-          key={index}
-          className="text-sm text-gray-700 bg-gray-200 px-2 py-1 rounded"
-        >
-          {file.name}
-        </span>
-      ))}
-    </div>
+          {assets.length > 0 && (
+            <div className="mt-4 flex justify-between items-center">
+              {/* Displaying selected files in a row */}
+              <div className="flex flex-wrap gap-2">
+                <h3 className="text-sm font-semibold">Selected Assets:</h3>
+                {/* Displaying each selected file name */}
+                {assets.map((file, index) => (
+                  <span
+                    key={index}
+                    className="text-sm text-gray-700 bg-gray-200 px-2 py-1 rounded"
+                  >
+                    {file.name}
+                  </span>
+                ))}
+              </div>
 
-    {/* Clear Assets Button */}
-    <button
-      type="button"
-      className="bg-gray-300 text-black px-4 py-2 text-sm rounded hover:bg-gray-600"
-      onClick={() => setAssets([])} // Clear assets
-    >
-      Clear Assets
-    </button>
-  </div>
-)}
+              {/* Clear Assets Button */}
+              <button
+                type="button"
+                className="bg-gray-300 text-black px-4 py-2 text-sm rounded hover:bg-gray-600"
+                onClick={() => setAssets([])} // Clear assets
+              >
+                Clear Assets
+              </button>
+            </div>
+          )}
 
           <div className="bg-gray-50 py-6 sm:flex sm:flex-row-reverse gap-4">
             {uploading ? (
               <span className="text-sm py-2 text-red-500">Uploading assets</span>
             ) : (
               <Button
-                label="Submit"
+                label="Create"
                 type="submit"
                 className="bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700  sm:w-auto"
               />

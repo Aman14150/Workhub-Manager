@@ -20,6 +20,7 @@ const AddUser = ({ open, setOpen, userData, handleAddUser }) => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({ defaultValues });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -31,12 +32,18 @@ const AddUser = ({ open, setOpen, userData, handleAddUser }) => {
       if (response.status === 201 && response.data) {
         toast.success("User registered successfully!"); // Show success toast
         handleAddUser(response.data); // Add new user to the list
-        setOpen(false);
+        reset(); // Reset the form
+        setOpen(false); // Close the modal
       }
     } catch (error) {
       console.error("Registration error:", error);
       toast.error(error.response?.data?.message || "An error occurred!"); // Show error toast
     }
+  };
+
+  const handleCancel = () => {
+    reset(); // Reset the form on cancel
+    setOpen(false); // Close the modal
   };
 
   const togglePasswordVisibility = () => {
@@ -150,7 +157,7 @@ const AddUser = ({ open, setOpen, userData, handleAddUser }) => {
             <Button
               type="button"
               className="bg-white px-5 text-sm font-semibold text-gray-900 sm:w-auto"
-              onClick={() => setOpen(false)}
+              onClick={handleCancel}
               label="Cancel"
             />
           </div>
