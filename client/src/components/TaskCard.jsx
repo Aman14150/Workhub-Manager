@@ -40,7 +40,7 @@ const TaskCard = ({ task }) => {
             <span className='text-lg'>{ICONS[task?.priority]}</span>
             <span className='uppercase'>{task?.priority} Priority</span>
           </div>
-          <TaskDialog task={task} />
+          <TaskDialog task={task} isAdmin={true} /> 
         </div>
 
         <>
