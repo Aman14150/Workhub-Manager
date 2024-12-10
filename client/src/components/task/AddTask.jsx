@@ -44,7 +44,7 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
   const submitHandler = async (data) => {
     try {
       const { title, date } = data;
-      const assetNames = assets.map((file) => file.name);
+      const assetNames = assets.filter((file) => file !== null).map((file) => file.name);
       const taskData = {
         ...task,
         title,
@@ -91,9 +91,10 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
 
   // Handle file uploads
   const handleSelect = (e) => {
-    const files = Array.from(e.target.files);
-    setAssets(files); // Store the uploaded files
+    const files = Array.from(e.target.files).filter((file) => file !== null);
+    setAssets(files); // Store the valid uploaded files
   };
+  
 
   return (
     <ModalWrapper open={open} 
@@ -177,7 +178,7 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
               <div className="flex flex-wrap gap-2">
                 <h3 className="text-sm font-semibold">Selected Assets:</h3>
                 {/* Displaying each selected file name */}
-                {assets.map((file, index) => (
+                {assets.filter((file) => file !== null).map((file, index) => (
                   <span
                     key={index}
                     className="text-sm text-gray-700 bg-gray-200 px-2 py-1 rounded"

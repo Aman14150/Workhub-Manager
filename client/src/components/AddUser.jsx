@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import ModalWrapper from "./ModalWrapper";
@@ -21,25 +21,43 @@ const AddUser = ({ open, setOpen, userData, handleAddUser }) => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({ defaultValues });
+  } = useForm();
+
+  useEffect(() => {
+    if (userData) {
+      reset({
+        ...userData,
+        password: "",
+        isAdmin: userData.isAdmin || false, 
+      }); // Pre-fill the form with user data
+    }
+  }, [userData, reset]);
 
   const [showPassword, setShowPassword] = useState(false);
 
   const handleOnSubmit = async (data) => {
     try {
-      const response = await axios.post("/api/user/register", data);
+      const payload = { ...data, _id: userData?._id };
+      if (!data.password) delete payload.password; // Remove password if not updated
 
-      if (response.status === 201 && response.data) {
-        toast.success("User registered successfully!"); // Show success toast
-        handleAddUser(response.data); // Add new user to the list
-        reset(); // Reset the form
-        setOpen(false); // Close the modal
+      const response = userData
+        ? await axios.put(`/api/user/profile`, { ...data, _id: userData._id })
+        : await axios.post("/api/user/register", data);
+  
+      if (response.status === 201 || response.status === 200) {
+        toast.success(
+          userData ? "User updated successfully!" : "User registered successfully!"
+        );
+        handleAddUser(response.data); // Update the list
+        reset();
+        setOpen(false);
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      toast.error(error.response?.data?.message || "An error occurred!"); // Show error toast
+      console.error("Error:", error);
+      toast.error(error.response?.data?.message || "An error occurred!");
     }
   };
+  
 
   const handleCancel = () => {
     reset(); // Reset the form on cancel
@@ -140,6 +158,7 @@ const AddUser = ({ open, setOpen, userData, handleAddUser }) => {
             id="isAdmin"
             name="isAdmin"
             className="w-4 h-4 ml-2 rounded border-gray-300"
+            defaultChecked={userData?.isAdmin || false}
             {...register("isAdmin")}
           />
         </div>

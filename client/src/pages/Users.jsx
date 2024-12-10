@@ -40,7 +40,26 @@ const Users = () => {
     setUsers((prevUsers) => [...prevUsers, newUser]);
   };
 
-  const userActionHandler = () => {};
+  const userActionHandler = async (id, currentStatus) => {
+    try {
+      const response = await axios.put(`/api/user/${id}`, {
+        isActive: !currentStatus,
+      });
+  
+      // Update the users list with the new status
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === id ? { ...user, isActive: !currentStatus } : user
+        )
+      );
+  
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Error updating user status.");
+      console.error(error);
+    }
+  };
+  
 
   const deleteHandler = async () => {
     try {
@@ -60,19 +79,19 @@ const Users = () => {
     setOpenDialog(true);
   };
 
-  const editClick = (el) => {
-    setSelected(el);
+  const editClick = (user) => {
+    setSelected(user); // Pass the selected user data
     setOpen(true);
   };
-
+  
   const TableHeader = () => (
     <thead className="border-b border-gray-300">
       <tr className="text-black text-left">
-        <th className="py-2">Full Name</th>
-        <th className="py-2">Title</th>
-        <th className="py-2 ">Email</th>
-        <th className="py-2">Role</th>
-        <th className="py-2">Active</th>
+        <th className="py-2 text-center">Full Name</th>
+        <th className="py-2 text-center">Title</th>
+        <th className="py-2 text-center ">Email</th>
+        <th className="py-2 text-center">Role</th>
+        <th className="py-2 text-center ">Active</th>
         <th className="py-2 text-center">Action</th>
       </tr>
     </thead>
@@ -80,7 +99,7 @@ const Users = () => {
 
   const TableRow = ({ user }) => (
     <tr className="border-b border-gray-200 text-gray-600 hover:bg-gray-400/10">
-      <td className="p-2">
+      <td className="p-2 items-center">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-blue-700">
             <span className="text-xs md:text-sm text-center">
@@ -91,18 +110,19 @@ const Users = () => {
         </div>
       </td>
 
-      <td className="p-2">{user.title}</td>
-      <td className="p-2">{user.email || "user.emal.com"}</td>
-      <td className="p-2">{user.role}</td>
+      <td className="p-2 text-center">{user.title}</td>
+      <td className="p-2 text-center">{user.email || "user.emal.com"}</td>
+      <td className="p-2 text-center">{user.role}</td>
 
-      <td>
+      <td >
         <button
+         onClick={() => userActionHandler(user._id, user.isActive)}
           className={clsx(
-            "w-fit px-4 py-1 rounded-full",
+            "w-fit px-4 py-1 rounded-full mx-auto flex justify-center",
             user?.isActive ? "bg-blue-200" : "bg-yellow-100"
           )}
         >
-          {user?.isActive ? "Active" : "Inactive"}
+          {user?.isActive ? "Active" : "Disabled"}
         </button>
       </td>
 

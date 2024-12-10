@@ -24,7 +24,9 @@ const ICONS = {
 
 const TaskCard = ({ task }) => {
   const { user } = useSelector((state) => state.auth);
-  
+
+  const [tasks, setTasks] = useState([]);
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -40,7 +42,7 @@ const TaskCard = ({ task }) => {
             <span className='text-lg'>{ICONS[task?.priority]}</span>
             <span className='uppercase'>{task?.priority} Priority</span>
           </div>
-          <TaskDialog task={task} isAdmin={true} /> 
+          <TaskDialog  key={task._id} task={task} setTasks={setTasks}/> 
         </div>
 
         <>

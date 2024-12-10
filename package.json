@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-      "start": "concurrently \"npm run dev --prefix clientside\" \"npm run dev --prefix server\"",
-      "server": "nodemon server.js --prefix server",
-      "clientside": "react-scripts start --prefix clientside"
+    "start": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client"
   },
   "dependencies": {
       "concurrently": "^9.0.1"

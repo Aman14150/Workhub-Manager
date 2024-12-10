@@ -31,7 +31,6 @@ export function getInitials(fullName) {
   return initials.join("");
 }
 
-
 export const PRIOTITYSTYELS = {
   high: "text-red-600",
   medium: "text-yellow-600",

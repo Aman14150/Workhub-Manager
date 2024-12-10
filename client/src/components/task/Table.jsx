@@ -91,8 +91,8 @@ const Table = ({ tasks }) => {
         </div>
       </td>
 
-      <td className="py-2">
-        <div className={"flex gap-1 items-center"}>
+      <td className="py-2 text-center">
+        <div className={"flex gap-1"}>
           <span className={clsx("text-lg", PRIOTITYSTYELS[task?.priority])}>
             {ICONS[task?.priority]}
           </span>

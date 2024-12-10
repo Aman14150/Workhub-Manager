@@ -8,6 +8,7 @@ const UserInfo = ({ user }) => {
    const name = user?.name || "Unknown User";
    const title = user?.title || "No Title Available";
    const email = user?.email || "email@example.com";
+   const role = user?.role || "No Role Available";
  
   return (
     <div className='px-4'>
@@ -45,8 +46,9 @@ const UserInfo = ({ user }) => {
                   <p className='text-black text-xl font-bold'>{user?.name}</p>
                   <span className='text-base text-gray-500'>{user?.title}</span>
                   <span className='text-blue-500'>
-                    {user?.email ?? "email@example.com"}
+                    {user?.email}
                   </span>
+                  <span className='text-base text-gray-500'>{user?.role}</span>
                 </div>
               </div>
             </Popover.Panel>

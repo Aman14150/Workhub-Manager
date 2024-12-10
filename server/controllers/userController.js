@@ -222,7 +222,7 @@ export const activateUserProfile = async (req, res) => {
     const user = await User.findById(id);
 
     if (user) {
-      user.isActive = req.body.isActive; //!user.isActive
+      user.isActive = req.body.isActive !== undefined ? req.body.isActive : !user.isActive; //!user.isActive
 
       await user.save();
 
