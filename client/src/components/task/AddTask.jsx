@@ -7,7 +7,7 @@ import UserList from "./UserList";
 import SelectList from "../SelectList";
 import { BiImages } from "react-icons/bi";
 import Button from "../Button";
-import axios from "axios"; 
+import axios from "axios";
 import { toast } from "sonner";
 
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
@@ -16,9 +16,8 @@ const PRIORIRY = ["HIGH", "MEDIUM", "NORMAL"];
 const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
   const {
     register,
-    handleSubmit, // Add handleSubmit from useForm
+    handleSubmit,
     reset,
-    uploading,
     formState: { errors },
   } = useForm();
 
@@ -26,7 +25,7 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
   const [team, setTeam] = useState(task?.team || []);
   const [stage, setStage] = useState(task?.stage || LISTS[0]);
   const [priority, setPriority] = useState(task?.priority?.toUpperCase() || PRIORIRY[2]);
-  
+
   useEffect(() => {
     if (task) {
       reset({
@@ -34,9 +33,8 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
         date: task.date,
         priority: task.priority,
         team: task.team,
-        assets: task.assets, 
+        assets: task.assets,
         taskstage: task.stage,
-        // other fields
       });
     }
   }, [task, reset]);
@@ -44,32 +42,45 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
   const submitHandler = async (data) => {
     try {
       const { title, date } = data;
-      const assetNames = assets.filter((file) => file !== null).map((file) => file.name);
-      const taskData = {
-        ...task,
-        title,
-        team,
-        stage,
-        date,
-        priority,
-        assets: assetNames,
-      };
-
-      console.log('Task data being sent:', taskData); 
-
+  
+      // Convert FileList to an array (if not already done)
+      const files = Array.from(assets || []);
+  
+      // Prepare FormData
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("date", date);
+      formData.append("team", JSON.stringify(team));
+      formData.append("stage", stage);
+      formData.append("priority", priority);
+  
+      files.forEach((file) => formData.append("assets", file));
+  
+      // Debug FormData
+      console.log("FormData Entries: ");
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+  
+      let response;
       if (task?._id) {
         // Update Task
-        const response = await axios.put(`/api/task/update/${task._id}`, taskData);
-        console.log(response, 'success');
+        response = await axios.put(`/api/task/update/${task._id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        console.log("updated response",response) 
+        console.log("updated response id",task?._id)
         handleUpdateTask(response.data.task);
         toast.success("Task updated successfully");
       } else {
         // Create Task
-        const response = await axios.post("/api/task/create", taskData);
+        response = await axios.post("/api/task/create", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         handleAddTask(response.data.task);
         toast.success("Task created successfully");
       }
-
+  
       clearForm();
       setOpen(false);
     } catch (error) {
@@ -77,6 +88,8 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
       toast.error("Failed to save task");
     }
   };
+  
+  
 
   const clearForm = () => {
     reset({
@@ -88,28 +101,31 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
     setStage(LISTS[0]);
     setPriority(PRIORIRY[2]);
   };
+  
 
-  // Handle file uploads
+  // // Handle file uploads
   const handleSelect = (e) => {
-    const files = Array.from(e.target.files).filter((file) => file !== null);
-    setAssets(files); // Store the valid uploaded files
+    const selectedFiles = Array.from(e.target.files).filter(Boolean);
+    setAssets((prevAssets) => [...prevAssets, ...selectedFiles]); // Append selected files
   };
   
 
   return (
-    <ModalWrapper open={open} 
-    setOpen={(value) => {
-      if (!value) clearForm(); // Clear the form when the modal is closed
-      setOpen(value);
-    }}
-  >
+    <ModalWrapper
+      open={open}
+      setOpen={(value) => {
+        if (!value) clearForm(); // Clear the form when the modal is closed
+        setOpen(value);
+      }}
+    >
       <form onSubmit={handleSubmit(submitHandler)}>
-
         <Dialog.Title
-        as="h2"className="text-base font-bold leading-6 text-gray-900 mb-4"
+          as="h2"
+          className="text-base font-bold leading-6 text-gray-900 mb-4"
         >
-        {task?._id ? "Update Task" : "Add Task"}</Dialog.Title>
-        
+          {task?._id ? "Update Task" : "Add Task"}
+        </Dialog.Title>
+
         <div className="mt-2 flex flex-col gap-6">
           <Textbox
             placeholder="Task Title"
@@ -157,14 +173,17 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
                 className="flex items-center gap-1 text-base text-ascent-2 hover:text-ascent-1 cursor-pointer my-4"
                 htmlFor="imgUpload"
               >
-                <input
-                  type="file"
-                  className="hidden"
-                  id="imgUpload"
-                  onChange={(e) => handleSelect(e)}
-                  accept=".jpg, .png, .jpeg, pdf, excel, word"
-                  multiple={true}
-                />
+              <input
+                type="file"
+                className="hidden"
+                id="imgUpload"
+                {...register("assets")}
+                onChange={(e) => handleSelect(e)}
+                accept=".jpg,.png,.jpeg,.pdf,.doc,.docx,.xls,.xlsx"
+                multiple={true}
+              />
+
+
                 <BiImages />
                 <span>Add Assets</span>
               </label>
@@ -173,12 +192,10 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
 
           {/* Display selected files (assets) */}
           {assets.length > 0 && (
-            <div className="mt-4 flex justify-between items-center">
-              {/* Displaying selected files in a row */}
+            <div className="mt-4 flex flex-col gap-4">
+              <h3 className="text-sm font-semibold">Selected Assets:</h3>
               <div className="flex flex-wrap gap-2">
-                <h3 className="text-sm font-semibold">Selected Assets:</h3>
-                {/* Displaying each selected file name */}
-                {assets.filter((file) => file !== null).map((file, index) => (
+                {assets.map((file, index) => (
                   <span
                     key={index}
                     className="text-sm text-gray-700 bg-gray-200 px-2 py-1 rounded"
@@ -187,8 +204,6 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
                   </span>
                 ))}
               </div>
-
-              {/* Clear Assets Button */}
               <button
                 type="button"
                 className="bg-gray-300 text-black px-4 py-2 text-sm rounded hover:bg-gray-600"
@@ -200,23 +215,19 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
           )}
 
           <div className="bg-gray-50 py-6 sm:flex sm:flex-row-reverse gap-4">
-            {uploading ? (
-              <span className="text-sm py-2 text-red-500">Uploading assets</span>
-            ) : (
-              <Button
+            <Button
               label={task?._id ? "Update" : "Create"}
-                type="submit"
-                className="bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700  sm:w-auto"
-              />
-            )}
+              type="submit"
+              className="bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700 sm:w-auto"
+            />
 
             <Button
               type="button"
               className="bg-gray-300 px-5 text-sm font-semibold text-gray-900 sm:w-auto"
               onClick={() => {
-                clearForm()
-                setOpen(false)}
-              } 
+                clearForm();
+                setOpen(false);
+              }}
               label="Cancel"
             />
           </div>
@@ -227,3 +238,4 @@ const AddTask = ({ open, setOpen, task, handleAddTask, handleUpdateTask }) => {
 };
 
 export default AddTask;
+

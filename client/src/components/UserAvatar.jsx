@@ -120,7 +120,10 @@ const UserAvatar = () => {
             <h2 className="text-xl font-bold mb-4">User Profile</h2>
             <p><strong>Name:</strong> {user?.name}</p>
             <p><strong>Email:</strong> {user?.email}</p>
+            <p><strong>Mobile No:</strong> {user?.mobileNo || "Not Available"}</p>
             <p><strong>Title:</strong> {user?.title || "Not Available"}</p>
+            <p><strong>Role:</strong> {user?.role || "Not Available"}</p>
+            <p><strong>Password:</strong> {user?.password || "Not Available"}</p>
             <button
               onClick={() => setOpen(false)} // Close Profile Modal
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"

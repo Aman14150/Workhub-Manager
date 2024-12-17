@@ -49,6 +49,15 @@ const Tasks = () => {
     }
   };
 
+  const handleUpdateTask = (updatedTask) => {
+    setTasks((prevTasks) => 
+      prevTasks.map((task) => 
+        task._id === updatedTask._id ? updatedTask : task
+      )
+    );
+  };
+  
+
   const status = params?.status || "";
 
   const fetchTasks = async () => {
@@ -122,7 +131,7 @@ const Tasks = () => {
         )}
       </Tabs>
 
-      <AddTask open={open} setOpen={setOpen} handleAddTask={handleAddTask} />
+      <AddTask open={open} setOpen={setOpen} handleAddTask={handleAddTask} handleUpdateTask={handleUpdateTask} />
     </div>
   );
 };

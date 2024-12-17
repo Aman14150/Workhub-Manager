@@ -24,12 +24,12 @@ export function dateFormatter(dateString) {
   return formattedDate;
 }
 
-export function getInitials(fullName) {
-  if (!fullName || typeof fullName !== "string") return "?"; // Fallback for invalid input
-  const names = fullName.split(" ");
-  const initials = names.slice(0, 2).map((name) => name[0].toUpperCase());
+export const getInitials = (name) => {
+  if (!name || typeof name !== "string") return ""; // Handle undefined or non-string
+  const initials = name.split(" ").map((word) => word[0]?.toUpperCase());
   return initials.join("");
-}
+};
+
 
 export const PRIOTITYSTYELS = {
   high: "text-red-600",

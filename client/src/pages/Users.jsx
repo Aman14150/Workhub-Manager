@@ -7,6 +7,7 @@ import { getInitials } from "../utils";
 import clsx from "clsx";
 import ConfirmatioDialog, { UserAction } from "../components/Dialogs";
 import AddUser from "../components/AddUser";
+import EditUser from "../components/EditUser";
 import { toast } from "sonner";
 
 const Users = () => {
@@ -16,13 +17,14 @@ const Users = () => {
   const [selected, setSelected] = useState(null);
   const [users, setUsers] = useState([]); // Store fetched users
   const [loading, setLoading] = useState(false); // Loading state for fetching
-
+  const [openEdit, setOpenEdit] = useState(false);
   // Fetch users on component mount
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
         const response = await axios.get("/api/user/get-team");
+        console.log("Fetched Users:", response.data);
         setUsers(response.data || []); 
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -36,11 +38,22 @@ const Users = () => {
   }, []);
 
   const handleAddUser = (newUser) => {
-    // Update the users state with the newly added user
-    setUsers((prevUsers) => [...prevUsers, newUser]);
-  };
+    console.log("New user to be added:", newUser);
+    setUsers((prevUsers) => {
+        console.log("Previous users:", prevUsers);
+        return [...prevUsers, newUser];
+    });
+};
 
-  const userActionHandler = async (id, currentStatus) => {
+  const handleEditUser = (updatedUser) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === updatedUser._id ? { ...user, ...updatedUser } : user
+      )
+    );
+  };
+  
+   const userActionHandler = async (id, currentStatus) => {
     try {
       const response = await axios.put(`/api/user/${id}`, {
         isActive: !currentStatus,
@@ -79,10 +92,10 @@ const Users = () => {
     setOpenDialog(true);
   };
 
-  const editClick = (user) => {
-    setSelected(user); // Pass the selected user data
-    setOpen(true);
-  };
+const editClick = (user) => {
+  setSelected(user); // Pass the selected user data
+  setOpenEdit(true);
+};
   
   const TableHeader = () => (
     <thead className="border-b border-gray-300">
@@ -90,6 +103,7 @@ const Users = () => {
         <th className="py-2 text-center">Full Name</th>
         <th className="py-2 text-center">Title</th>
         <th className="py-2 text-center ">Email</th>
+        <th className="py-2 text-center ">Phone No.</th>
         <th className="py-2 text-center">Role</th>
         <th className="py-2 text-center ">Active</th>
         <th className="py-2 text-center">Action</th>
@@ -102,17 +116,19 @@ const Users = () => {
       <td className="p-2 items-center">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-blue-700">
-            <span className="text-xs md:text-sm text-center">
-              {getInitials(user.name)}
-            </span>
+          <span className="text-xs md:text-sm text-center">
+            {user.name ? getInitials(user.name) : ""}
+          </span>
+
           </div>
           {user.name}
         </div>
       </td>
 
       <td className="p-2 text-center">{user.title}</td>
-      <td className="p-2 text-center">{user.email || "user.emal.com"}</td>
-      <td className="p-2 text-center">{user.role}</td>
+      <td className="p-2 text-center">{user.email || "N/A"}</td>
+      <td className="p-2 text-center">{user.mobileNo || "N/A"}</td>
+      <td className="p-2 text-center">{user.role || "N/A"}</td>
 
       <td >
         <button
@@ -179,7 +195,16 @@ const Users = () => {
         open={open}
         setOpen={setOpen}
         userData={selected}
-        handleAddUser={handleAddUser} // Pass callback to handle adding user
+        handleAddUser={handleAddUser} 
+        setUsers={setUsers}// Pass callback to handle adding user
+      />
+
+      <EditUser
+        open={openEdit}
+        setOpen={setOpenEdit}
+        userData={selected}
+        handleEditUser={handleEditUser} 
+  // Pass
       />
 
       <ConfirmatioDialog

@@ -6,7 +6,7 @@ import Notice from "../models/notification.js";
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, isAdmin, role, title } = req.body;
+    const { name, email, mobileNo, password, isAdmin, role, title,} = req.body;
 
     const userExist = await User.findOne({ email });
 
@@ -20,6 +20,7 @@ export const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       email,
+      mobileNo,
       password,
       isAdmin,
       role,
@@ -97,7 +98,7 @@ export const logoutUser = async (req, res) => {
 
 export const getTeamList = async (req, res) => {
   try {
-    const users = await User.find().select("name title role email isActive");
+    const users = await User.find().select("name title role email mobileNo isActive");
 
     res.status(200).json(users);
   } catch (error) {
@@ -125,36 +126,38 @@ export const getNotificationsList = async (req, res) => {
 export const updateUserProfile = async (req, res) => {
   try {
     const { userId, isAdmin } = req.user;
-    const { _id } = req.body;
+    const { _id, name, mobileNo, title, role, password, } = req.body;
 
-    const id =
-      isAdmin && userId === _id
-        ? userId
-        : isAdmin && userId !== _id
-        ? _id
-        : userId;
+    // Determine which user ID to update
+    const id = isAdmin && _id ? _id : userId;
 
+    // Fetch user by ID
     const user = await User.findById(id);
 
-    if (user) {
-      user.name = req.body.name || user.name;
-      user.title = req.body.title || user.title;
-      user.role = req.body.role || user.role;
-
-      const updatedUser = await user.save();
-
-      user.password = undefined;
-
-      res.status(201).json({
-        status: true,
-        message: "Profile Updated Successfully.",
-        user: updatedUser,
-      });
-    } else {
-      res.status(404).json({ status: false, message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ status: false, message: "User not found" });
     }
+
+    // Update fields only if provided in the request body
+    if (name) user.name = name;
+    if (title) user.title = title;
+    if (role) user.role = role;
+    if (mobileNo) user.mobileNo = mobileNo;
+    if (password) user.password = password;
+    
+    // Save updated user
+    const updatedUser = await user.save();
+
+    // Hide password from response
+    updatedUser.password = undefined;
+
+    return res.status(200).json({
+      status: true,
+      message: "Profile Updated Successfully.",
+      user: updatedUser,
+    });
   } catch (error) {
-    console.log(error);
+    console.log("Error updating user profile:", error);
     return res.status(400).json({ status: false, message: error.message });
   }
 };
