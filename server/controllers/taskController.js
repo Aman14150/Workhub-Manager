@@ -271,35 +271,46 @@ export const createSubTask = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { title, date, team, stage, priority, assets } = req.body;
+    const taskId = req.params.id;
 
-    const task = await Task.findById(id);
-
-    if (!task) {
-      return res.status(404).json({ status: false, message: "Task not found" });
+    if (!taskId) {
+      return res.status(400).json({ message: "Task ID is required" });
     }
 
-    // Update task properties
-    task.title = title;
-    task.date = date;
-    task.priority = priority.toLowerCase();
-    task.assets = assets;
-    task.stage = stage.toLowerCase();
-    task.team = team;
+    // Log the parsed request body and files
+    console.log("req",req)
+    console.log("Request Body:", req.body);
+    console.log("Uploaded Files:", req.files);
 
-    const updatedTask = await task.save();  
+    const { title, date, priority, stage, team } = req.body;
 
-    res.status(200).json({
-      status: true,
-      message: "Task updated successfully.",
-      task: updatedTask,  
-    });
+    // Handle assets
+    const assets = req.files?.map((file) => file.path) || [];
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      {
+        title,
+        date,
+        priority: priority?.toLowerCase() || "normal",
+        stage: stage?.toLowerCase() || "todo",
+        team: team ? JSON.parse(team) : [],
+        assets,
+      },
+      { new: true }
+    ).populate("team", "name email");
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    res.status(200).json({ message: "Task updated successfully", task: updatedTask });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({ status: false, message: error.message });
+    console.error("Error updating task:", error);
+    res.status(500).json({ message: "Failed to update task", error: error.message });
   }
 };
+
 
 export const trashTask = async (req, res) => {
   try {

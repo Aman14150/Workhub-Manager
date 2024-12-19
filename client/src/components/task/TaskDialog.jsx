@@ -116,7 +116,7 @@ const TaskDialog = ({ task, setTasks }) => {
         </Menu>
       </div>
 
-      <AddTask open={openEdit} setOpen={setOpenEdit} task={task} key={new Date().getTime()} />
+      {/* <AddTask open={openEdit} setOpen={setOpenEdit} task={task} key={new Date().getTime()} /> */}
 
       <ConfirmatioDialog open={openDialog} setOpen={setOpenDialog} onClick={deleteHandler} />
     </>

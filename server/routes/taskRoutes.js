@@ -13,6 +13,7 @@ import {
   updateTask,
 } from "../controllers/taskController.js";
 import { isAdminRoute, protectRoute } from "../middlewares/authMiddleware.js";
+import upload from "../middlewares/upload.js";
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.get("/" , getTasks);
 router.get("/:id", getTask);
 
 router.put("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
-router.put("/update/:id", updateTask);
+router.put("/update/:id", upload.array("assets"), updateTask);
 router.put("/:id", trashTask);
 
 router.delete(
