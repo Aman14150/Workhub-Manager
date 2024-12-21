@@ -123,7 +123,7 @@ const Tasks = () => {
         )}
 
         {selected !== 1 ? (
-          <BoardView tasks={tasks} />
+          <BoardView tasks={tasks} setTasks={setTasks} />
         ) : (
           <div className="w-full">  
             <Table tasks={tasks} />

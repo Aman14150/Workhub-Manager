@@ -11,6 +11,7 @@ import {
   postTaskActivity,
   trashTask,
   updateTask,
+  changeTaskStage ,
 } from "../controllers/taskController.js";
 import { isAdminRoute, protectRoute } from "../middlewares/authMiddleware.js";
 import upload from "../middlewares/upload.js";
@@ -28,6 +29,8 @@ router.get("/:id", getTask);
 router.put("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
 router.put("/update/:id", upload.array("assets"), updateTask);
 router.put("/:id", trashTask);
+
+router.put("/changestate/:id/stage", changeTaskStage);
 
 router.delete(
   "/delete-restore/:id?",

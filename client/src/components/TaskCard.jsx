@@ -22,10 +22,11 @@ const ICONS = {
   low: <MdKeyboardArrowDown />,
 };
 
-const TaskCard = ({ task }) => {
+const TaskCard = ({ task ,setTasks }) => {
   const { user } = useSelector((state) => state.auth);
+  const [showAllSubtasks, setShowAllSubtasks] = useState(false); 
 
-  const [tasks, setTasks] = useState([]);
+  //const [tasks, setTasks] = useState([]);
 
   const [open, setOpen] = useState(false);
 
@@ -89,29 +90,42 @@ const TaskCard = ({ task }) => {
           </div>
         </div>
 
-        {/* sub tasks */}
+{/* Subtasks */}
         {task?.subTasks?.length > 0 ? (
-          <div className='py-4 border-t border-gray-200'>
-            <h5 className='text-base line-clamp-1 text-black'>
-              {task?.subTasks[0].title}
-            </h5>
-
-            <div className='p-4 space-x-8'>
-              <span className='text-sm text-gray-600'>
-                {formatDate(new Date(task?.subTasks[0]?.date))}
-              </span>
-              <span className='bg-blue-600/10 px-3 py-1 rounded0full text-blue-700 font-medium'>
-                {task?.subTasks[0].tag}
-              </span>
-            </div>
+          <div className="py-4 border-t border-gray-200">
+            <h5 className="text-base text-black">Subtasks</h5>
+            {task.subTasks
+              .slice(0, showAllSubtasks ? task.subTasks.length : 2)
+              .map((subTask, index) => (
+                <div key={index} className="py-2">
+                  <h6 className="line-clamp-1 text-black">{subTask.title}</h6>
+                  <div className="p-4 space-x-8">
+                    <span className="text-sm text-gray-600">
+                      {formatDate(new Date(subTask.date))}
+                    </span>
+                    <span className="bg-blue-600/10 px-3 py-1 rounded-full text-blue-700 font-medium">
+                      {subTask.tag}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            {task.subTasks.length > 2 && (
+              <button
+                onClick={() => setShowAllSubtasks(!showAllSubtasks)}
+                className="text-blue-600 mt-2 underline text-sm"
+              >
+                {showAllSubtasks ? "Show Less" : "See All Subtasks"}
+              </button>
+            )}
           </div>
         ) : (
-          <>
-            <div className='py-4 border-t border-gray-200'>
-              <span className='text-gray-500'>No Sub Task</span>
-            </div>
-          </>
+          <div className="py-4 border-t border-gray-200">
+            <span className="text-gray-500">No Sub Tasks</span>
+          </div>
         )}
+
+
+
 
         <div className='w-full pb-2'>
           <button
@@ -125,7 +139,7 @@ const TaskCard = ({ task }) => {
         </div>
       </div>
 
-      <AddSubTask open={open} setOpen={setOpen} id={task._id} />
+      <AddSubTask open={open} setOpen={setOpen} id={task._id} setTasks={setTasks} />
     </>
   );
 };

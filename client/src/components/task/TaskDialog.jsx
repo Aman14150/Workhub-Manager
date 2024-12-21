@@ -5,7 +5,6 @@ import { BsThreeDots } from "react-icons/bs";
 import { MdOutlineEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { Menu, Transition } from "@headlessui/react";
-import AddTask from "./AddTask";
 import ConfirmatioDialog from "../Dialogs";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -32,9 +31,9 @@ const TaskDialog = ({ task, setTasks }) => {
   const deleteHandler = async () => {
     try {
       await axios.put(`/api/task/${selected}`, { isTrashed: true }); // Mark task as trashed
-
-      // Optimistically remove the task from the UI without requiring a refresh
-      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== selected));
+  
+      const updatedResponse = await axios.get('/api/task');
+      setTasks(updatedResponse.data.tasks); 
       toast.success("Task has been moved to trash!");
       setOpenDialog(false);
     } catch (error) {
@@ -42,7 +41,26 @@ const TaskDialog = ({ task, setTasks }) => {
       console.error(error);
     }
   };
+  
+  const changeStage = async (newStage) => {
+    try {
+      const response = await axios.put(`/api/task/changestate/${task._id}/stage`, { stage: newStage });
 
+      console.log("response",response)
+      console.log("response.data",response.data.task)
+  
+      // Refetch tasks after stage update
+      const updatedResponse = await axios.get('/api/task');
+      console.log("updated response",updatedResponse)
+      setTasks(updatedResponse.data.tasks); // Update state with new tasks
+
+      toast.success(`Task stage changed to ${newStage}!`);
+    } catch (error) {
+      toast.error("Error in changing task stage.");
+      console.error(error);
+    }
+  };
+  
   const items = [
     {
       label: "Open Task",
@@ -51,12 +69,15 @@ const TaskDialog = ({ task, setTasks }) => {
       visibleTo: "all",
     },
     {
-      label: "Edit",
-      icon: <MdOutlineEdit className='mr-2 h-5 w-5' aria-hidden='true' />,
-      onClick: () => setOpenEdit(true),
+      label: "Change Stage",
+      icon: null,
+      onClick: null, // Dropdown handled separately
       visibleTo: "admin",
+      dropdown: true,
     },
   ];
+
+  const stageOptions = ["todo", "in progress", "completed"];
 
   return (
     <>
@@ -74,17 +95,34 @@ const TaskDialog = ({ task, setTasks }) => {
             leave='transition ease-in duration-75'
             leaveFrom='transform opacity-100 scale-100'
             leaveTo='transform opacity-0 scale-95'>
+
             <Menu.Items className='absolute p-4 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none'>
               <div className='px-1 py-1 space-y-2'>
                 {items.map(
                   (el) =>
                     (isAdmin && el.visibleTo === "admin") || el.visibleTo === "all" ? (
                       <Menu.Item key={el.label}>
-                        {({ active }) => (
+                        {el.dropdown ? (
+                          <div>
+                            <span className='block px-2 py-2 text-sm font-medium text-gray-900'>
+                              {el.label}
+                            </span>
+                            <div className='ml-4'>
+                              {stageOptions.map((stage) => (
+                                <button
+                                  key={stage}
+                                  onClick={() => changeStage(stage)}
+                                  className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200'>
+                                  {stage.charAt(0).toUpperCase() + stage.slice(1)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
                           <button
                             onClick={el?.onClick}
                             className={`${
-                              active ? "bg-blue-500 text-white" : "text-gray-900"
+                              el.active ? "bg-blue-500 text-white" : "text-gray-900"
                             } group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
                             {el.icon}
                             {el.label}

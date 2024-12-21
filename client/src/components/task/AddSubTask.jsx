@@ -3,8 +3,10 @@ import ModalWrapper from "../ModalWrapper";
 import { Dialog } from "@headlessui/react";
 import Textbox from "../Textbox";
 import Button from "../Button";
+import { toast } from "react-toastify";
+import axios from "axios";
 
-const AddSubTask = ({ open, setOpen, id }) => {
+const AddSubTask = ({ open, setOpen, id , setTasks }) => {
   const {
     register,
     handleSubmit,
@@ -14,16 +16,29 @@ const AddSubTask = ({ open, setOpen, id }) => {
   // const [addSbTask] = useCreateSubTaskMutation();
 
   const handleOnSubmit = async (data) => {
-    // try {
-    //   const res = await addSbTask({ data, id }).unwrap();
-    //   toast.success(res.message);
-    //   setTimeout(() => {
-    //     setOpen(false);
-    //   }, 500);
-    // } catch (err) {
-    //   console.log(err);
-    //   toast.error(err?.data?.message || err.error);
-    // }
+    try {
+      // Make API call to add subtask
+      const response = await axios.put(`api/task/create-subtask/${id}`, data);
+
+      const updatedResponse = await axios.get('/api/task');
+      console.log("updated response",updatedResponse)
+      setTasks(updatedResponse.data.tasks); 
+
+      // Show success message
+      toast.success(response.data.message);
+
+      // Close the modal after a slight delay for better user experience
+      setTimeout(() => {
+        setOpen(false);
+      }, 500);
+    } catch (error) {
+      console.error(error);
+
+      // Show error message
+      toast.error(
+        error.response?.data?.message || "An error occurred while adding the subtask."
+      );
+    }
   };
 
   return (

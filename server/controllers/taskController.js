@@ -207,6 +207,8 @@ export const getTasks = async (req, res) => {
       })
       .sort({ _id: -1 });
 
+      console.log("Fetched task:", tasks);
+
     res.status(200).json({
       status: true,
       tasks,
@@ -216,7 +218,6 @@ export const getTasks = async (req, res) => {
     return res.status(400).json({ status: false, message: error.message });
   }
 };
-
 
 export const getTask = async (req, res) => {
   try {
@@ -231,6 +232,9 @@ export const getTask = async (req, res) => {
         path: "activities.by",
         select: "name",
       });
+
+    console.log("Fetched task:", task);
+
 
     res.status(200).json({
       status: true,
@@ -311,7 +315,6 @@ export const updateTask = async (req, res) => {
   }
 };
 
-
 export const trashTask = async (req, res) => {
   try {
     const { id } = req.params;
@@ -360,5 +363,37 @@ export const deleteRestoreTask = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+export const changeTaskStage = async (req, res) => {
+  try {
+    const { id } = req.params; // Get task ID from URL
+    const { stage } = req.body; // Get the new stage from the request body
+
+    // Validate input
+    if (!stage) {
+      return res.status(400).json({ message: "Stage is required" });
+    }
+
+    const validStages = ["todo", "in progress", "completed"]; // Define valid stages
+    if (!validStages.includes(stage)) {
+      return res.status(400).json({ message: "Invalid stage value" });
+    }
+
+    // Find the task by ID
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Update the stage
+    task.stage = stage;
+    await task.save();
+
+    res.status(200).json({ message: "Task stage updated successfully", task });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating task stage", error });
   }
 };

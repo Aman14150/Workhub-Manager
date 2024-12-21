@@ -145,7 +145,10 @@ const Trash = () => {
         setOpenDialog(false);
       } else if (type === "restoreAll") {
         await axios.delete(`/api/task/delete-restore?actionType=restoreAll`); // Restore all tasks
-        setTasks([]); // Clear tasks UI
+        const response = await axios.get("/api/task", {
+          params: { isTrashed: true },
+        });
+        setTasks(response.data.tasks); // Update tasks with current trashed tasks
         toast.success("All tasks restored successfully");
         setOpenDialog(false);
       }
