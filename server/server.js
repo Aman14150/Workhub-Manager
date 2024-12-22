@@ -6,14 +6,12 @@ import morgan from "morgan";
 import { errorHandler, routeNotFound } from "./middlewares/errorMiddlewares.js";
 import routes from "./routes/index.js";
 import connectDb from './config/db.js'; // Importing DB connection
-import { createJWT } from './utils/jwt.js';  // Importing JWT utility
 
-// Establish database connection
+// Load environment variables
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
 // Establish database connection
-connectDb(); // Call this function here
+connectDb();
 
 const app = express();
 
@@ -26,12 +24,12 @@ app.use(
   })
 );
 
-app.use(express.json());  // Parse JSON bodies
-app.use(express.urlencoded({ extended: true }));  // Parse URL-encoded bodies
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
-app.use(cookieParser());  // Parse cookies
+app.use(cookieParser()); // Parse cookies
 
-app.use(morgan("dev"));  // Log HTTP requests
+app.use(morgan("dev")); // Log HTTP requests
 
 // API routes
 app.use("/api", routes);
@@ -40,7 +38,5 @@ app.use("/api", routes);
 app.use(routeNotFound);
 app.use(errorHandler);
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Export the app for serverless deployment
+export default app;
