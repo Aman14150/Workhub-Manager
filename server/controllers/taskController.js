@@ -32,10 +32,12 @@ export const createTask = [
         });
       }
 
-      let text = "New task has been assigned to you";
-      if (team?.length > 1) {
-        text = text + ` and ${team?.length - 1} others.`;
-      }
+      console.log("team length",team.length)
+
+      let text = "New task has been assigned to you and";
+     // if (team?.length > 1) {
+//text = text + ` and ${team?.length - 1} others.`;
+     // }
 
       text =
         text +

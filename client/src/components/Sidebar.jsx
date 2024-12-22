@@ -90,7 +90,7 @@ const Sidebar = () => {
           className="w-16 h-15 "  // Adjust the width and height as needed
         />
       </p>
-        <span className='text-2xl font-bold text-black text-blue-600 '>WORKHUB MANAGER</span>
+        <span className='text-2xl font-bold  text-blue-600 '>WORKHUB MANAGER</span>
       </h1>
 
       <div className='flex-1 flex flex-col gap-y-5 py-8'>
@@ -99,12 +99,15 @@ const Sidebar = () => {
         ))}
       </div>
 
+      {/*  
       <div className=''>
         <button className='w-full flex gap-2 p-2 items-center text-lg text-gray-800'>
           <MdSettings />
           <span>Settings</span>
         </button>
       </div>
+      */}
+      
     </div>
   );
 };
