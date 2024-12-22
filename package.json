@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "start": "node server.js",
     "server": "npm run dev --prefix server",
     "client": "npm run dev --prefix client"
   },
