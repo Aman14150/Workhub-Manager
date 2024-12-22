@@ -40,7 +40,12 @@ app.use("/api", routes);
 app.use(routeNotFound);
 app.use(errorHandler);
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to the API!',
+    routes: {
+      summary: '/api/summary',
+    },
+  });
 });
+
