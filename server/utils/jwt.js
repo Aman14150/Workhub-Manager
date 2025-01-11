@@ -8,8 +8,8 @@ export const createJWT = (res, userId) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== "development", // Use secure cookies in production
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict", // Allow cookies in cross-origin requests in production
+    sameSite: "None", // Required for cross-origin requests
+    secure: true, // Required for HTTPS
     maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
   });
 };
