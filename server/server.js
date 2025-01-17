@@ -21,14 +21,14 @@ const PORT = process.env.PORT || 5000;
 // Connect to the database
 connectDb();
 
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://workhub-manager-1.onrender.com' 
-    : 'http://localhost:3000', // Adjust based on local frontend URL
-  credentials: true, // Allow cookies
-};
-
-app.use(cors(corsOptions));
+// Enable CORS
+app.use(
+  cors({
+    origin: ["https://workhub-manager-1.onrender.com/login"],
+    methods: ["GET", "POST", "DELETE", "PUT"],
+    credentials: true,
+  })
+);
 
 // Middleware setup
 app.use(express.json());

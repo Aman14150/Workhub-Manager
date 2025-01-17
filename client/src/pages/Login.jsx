@@ -30,8 +30,8 @@ const Login = () => {
 
   const submitHandler = async (data) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/user/login`, data, { withCredentials: true });
-
+      const response = await axios.post("/api/user/login", data, { withCredentials: true });
+  
       const user = response.data;
       dispatch(setCredentials(user)); // Update Redux state
   
