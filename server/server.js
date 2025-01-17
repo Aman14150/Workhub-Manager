@@ -24,9 +24,10 @@ connectDb();
 // Enable CORS
 app.use(
   cors({
-    origin: ["https://workhub-manager-1.onrender.com"],
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    origin: "https://workhub-manager-1.onrender.com",
     credentials: true,
+    methods: ["GET", "POST", "DELETE", "PUT"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -38,6 +39,12 @@ app.use(morgan("dev"));
 
 // API routes
 app.use("/api", routes);
+
+// Debug middleware for cookies
+app.use((req, res, next) => {
+  console.log("Incoming Cookies: ", req.cookies);
+  next();
+});
 
 // Default route
 app.get("/", (req, res) => {

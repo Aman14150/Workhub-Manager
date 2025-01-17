@@ -7,10 +7,10 @@ export const createJWT = (res, userId) => {
   });
 
   res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Set to true in production
-    sameSite: "strict", // Adjust as needed ('strict', 'lax', or 'none')
-    maxAge: 24 * 60 * 60 * 1000, // Example: 1 day
+    httpOnly: true, // Ensures the cookie isn't accessible via JavaScript
+    secure: process.env.NODE_ENV === "production", // Only sent over HTTPS in production
+    sameSite: "none", // Use "none" for cross-origin requests
+    maxAge: 24 * 60 * 60 * 1000, // Cookie lifespan (1 day in this case)
   });
   
 };
