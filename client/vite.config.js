@@ -6,11 +6,11 @@ export default defineConfig({
   plugins: [react()],
 
   server: {
-    port: 3000,
     proxy: {
       "/api": {
         target: "https://workhub-manager.onrender.com",
         changeOrigin: true,
+        cookieDomainRewrite: "",
       },
     },
   },

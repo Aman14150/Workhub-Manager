@@ -24,10 +24,8 @@ connectDb();
 // Enable CORS
 app.use(
   cors({
-    origin: "https://workhub-manager-1.onrender.com",
-    credentials: true,
-    methods: ["GET", "POST", "DELETE", "PUT"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: "https://workhub-manager-1.onrender.com", // Replace with your frontend URL in development
+    credentials: true, // Allow cookies to be sent
   })
 );
 
