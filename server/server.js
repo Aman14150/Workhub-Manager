@@ -40,7 +40,8 @@ app.use("/api", routes);
 
 // Debug middleware for cookies
 app.use((req, res, next) => {
-  console.log("Incoming Cookies: ", req.cookies);
+  console.log("Incoming Headers:", req.headers);
+  console.log("Incoming Cookies:", req.cookies);
   next();
 });
 

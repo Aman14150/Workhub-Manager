@@ -30,18 +30,27 @@ const Login = () => {
 
   const submitHandler = async (data) => {
     try {
-      const response = await axios.post("/api/user/login", data, { withCredentials: true });
+      const response = await axios.post(
+        "/api/user/login",
+        data,
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: document.cookie, // Attach cookies manually
+          },
+        }
+      );
   
       const user = response.data;
-      dispatch(setCredentials(user)); // Update Redux state
-  
-      toast.success("Login Successful! Welcome to your Dashboard"); // Success toast
-      navigate("/dashboard"); // Redirect to dashboard
+      dispatch(setCredentials(user));
+      toast.success("Login Successful! Welcome to your Dashboard");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error.response?.data?.message || error.message);
-      toast.error(error.response?.data?.message || "An error occurred. Please try again."); // Error toast
+      toast.error(error.response?.data?.message || "An error occurred. Please try again.");
     }
-  };  
+  };
+  
 
   useEffect(() => {
     if (user) navigate("/dashboard");
