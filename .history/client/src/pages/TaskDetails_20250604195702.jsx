@@ -224,45 +224,38 @@ const TaskDetails = () => {
                   </div>
                 </div>
               </div>
-
               {/* RIGHT  */}
-              <div className='w-full md:w-1/2 space-y-8'>
-                <p className='text-lg font-semibold'>ASSETS</p>
-                <div className='w-full grid grid-cols-2 gap-4'>
-                  {task?.assets?.map((el, index) => {
-                    const isImage = el.endsWith(".jpg") || el.endsWith(".jpeg") || el.endsWith(".png");
-                    const isPDF = el.endsWith(".pdf");
+              < className='w-full md:w-1/2 space-y-8'>
+                <h2 className="font-semibold mb-2 text-lg">Assets:</h2>
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    {task?.assets?.map((el, index) => {
+      const isImage = el.endsWith(".jpg") || el.endsWith(".jpeg") || el.endsWith(".png");
+      const isPDF = el.endsWith(".pdf");
 
-                    return (
-                      <div key={index} className="relative w-full h-28 md:h-36 2xl:h-52">
-                        {isImage && (
-                          <img
-                            src={`http://localhost:5000/uploads/${el}`}
-                            alt={`asset-${index}`}
-                            className='w-full h-full object-cover rounded cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50'
-                          />
-                        )}
-                        {(isImage || isPDF) && (
-                        <div
-                          className='w-full h-full bg-gray-200 rounded text-center flex items-center justify-center font-semibold text-blue-700 cursor-pointer'
-                          onClick={() => setSelectedAsset(el)}
-                        >
-                          {isImage ? (
-                            <img
-                              src={`http://localhost:5000/uploads/${el}`}
-                              alt={`asset-${index}`}
-                              className='w-full h-full object-cover rounded'
-                            />
-                          ) : (
-                            <>View PDF #{index + 1}</>
-                          )}
-                        </div>
-                      )}
+      return (
+        <div
+          key={index}
+          className="relative w-full h-28 md:h-36 2xl:h-48 cursor-pointer border rounded overflow-hidden"
+          onClick={() => setSelectedAsset(el)}
+        >
+          {isImage ? (
+            <img
+              src={`http://localhost:5000/uploads/${el}`}
+              alt={`asset-${index}`}
+              className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
+            />
+          ) : isPDF ? (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-blue-600 font-semibold">
+              View PDF #{index + 1}
+            </div>
+          ) : null}
+        </div>
+      );
+    })}
+  </div>
 
-                      </div>
-                    );
-                  })}
-                  {selectedAsset && (
+{/* Modal for Preview */}
+{selectedAsset && (
   <div
     className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
     onClick={() => setSelectedAsset(null)}
@@ -289,7 +282,6 @@ const TaskDetails = () => {
   </div>
 )}
 
-                </div>
               </div>
             </div>
           </>

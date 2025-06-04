@@ -94,7 +94,6 @@ const TaskDetails = () => {
   const [selected, setSelected] = useState(0);
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedAsset, setSelectedAsset] = useState(null);
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -224,71 +223,19 @@ const TaskDetails = () => {
                   </div>
                 </div>
               </div>
-
               {/* RIGHT  */}
               <div className='w-full md:w-1/2 space-y-8'>
                 <p className='text-lg font-semibold'>ASSETS</p>
+
                 <div className='w-full grid grid-cols-2 gap-4'>
-                  {task?.assets?.map((el, index) => {
-                    const isImage = el.endsWith(".jpg") || el.endsWith(".jpeg") || el.endsWith(".png");
-                    const isPDF = el.endsWith(".pdf");
-
-                    return (
-                      <div key={index} className="relative w-full h-28 md:h-36 2xl:h-52">
-                        {isImage && (
-                          <img
-                            src={`http://localhost:5000/uploads/${el}`}
-                            alt={`asset-${index}`}
-                            className='w-full h-full object-cover rounded cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50'
-                          />
-                        )}
-                        {(isImage || isPDF) && (
-                        <div
-                          className='w-full h-full bg-gray-200 rounded text-center flex items-center justify-center font-semibold text-blue-700 cursor-pointer'
-                          onClick={() => setSelectedAsset(el)}
-                        >
-                          {isImage ? (
-                            <img
-                              src={`http://localhost:5000/uploads/${el}`}
-                              alt={`asset-${index}`}
-                              className='w-full h-full object-cover rounded'
-                            />
-                          ) : (
-                            <>View PDF #{index + 1}</>
-                          )}
-                        </div>
-                      )}
-
-                      </div>
-                    );
-                  })}
-                  {selectedAsset && (
-  <div
-    className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-    onClick={() => setSelectedAsset(null)}
-  >
-    <div className="bg-white p-4 rounded max-w-4xl w-full h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-      <button
-        className="mb-4 text-sm text-red-500 hover:text-red-700"
-        onClick={() => setSelectedAsset(null)}
-      >
-        Close Preview
-      </button>
-      {selectedAsset.endsWith(".jpg") || selectedAsset.endsWith(".jpeg") || selectedAsset.endsWith(".png") ? (
-        <img src={`http://localhost:5000/uploads/${selectedAsset}`} alt="preview" className="w-full max-h-[80vh] object-contain" />
-      ) : selectedAsset.endsWith(".pdf") ? (
-        <iframe
-          src={`http://localhost:5000/uploads/${selectedAsset}`}
-          title="PDF Preview"
-          className="w-full h-[80vh] border"
-        />
-      ) : (
-        <p className="text-gray-600">Unsupported file type</p>
-      )}
-    </div>
-  </div>
-)}
-
+                  {task?.assets?.map((el, index) => (
+                    <img
+                      key={index}
+                      src={el}
+                      alt={task?.title}
+                      className='w-full rounded h-28 md:h-36 2xl:h-52 cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50'
+                    />
+                  ))}
                 </div>
               </div>
             </div>

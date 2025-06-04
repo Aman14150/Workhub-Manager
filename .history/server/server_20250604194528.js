@@ -46,7 +46,7 @@ app.use(routeNotFound);
 app.use(errorHandler);
 
 // This will make 'uploads/' folder public and accessible
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Start the server
 app.listen(PORT, () => {

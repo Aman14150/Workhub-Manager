@@ -77,6 +77,7 @@ export const createTask = [
   },
 ];
 
+
 export const duplicateTask = async (req, res) => {
   try {
     const { id } = req.params;
@@ -275,27 +276,41 @@ export const updateTask = async (req, res) => {
   try {
     const taskId = req.params.id;
 
-    // Handle uploaded files
-    const files = req.files;
-    let filePaths = [];
-
-    if (files && files.length > 0) {
-      filePaths = files.map(file => `/uploads/${file.filename}`);
+    if (!taskId) {
+      return res.status(400).json({ message: "Task ID is required" });
     }
 
-    // Update the task (assuming you're saving these as 'assets')
+    // Log the parsed request body and files
+    console.log("req",req)
+    console.log("Request Body:", req.body);
+    console.log("Uploaded Files:", req.files);
+
+    const { title, date, priority, stage, team } = req.body;
+
+    // Handle assets
+    const assets = req.files?.map((file) => file.path) || [];
+
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       {
-        $push: { assets: { $each: filePaths } }, // Push new files into 'assets' array
-        // Add other fields to update if needed
+        title,
+        date,
+        priority: priority?.toLowerCase() || "normal",
+        stage: stage?.toLowerCase() || "todo",
+        team: team ? JSON.parse(team) : [],
+        assets,
       },
       { new: true }
-    );
+    ).populate("team", "name email");
 
-    res.status(200).json({ message: "Task updated", updatedTask });
+    if (!updatedTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    res.status(200).json({ message: "Task updated successfully", task: updatedTask });
   } catch (error) {
-    res.status(500).json({ message: "Update failed", error });
+    console.error("Error updating task:", error);
+    res.status(500).json({ message: "Failed to update task", error: error.message });
   }
 };
 

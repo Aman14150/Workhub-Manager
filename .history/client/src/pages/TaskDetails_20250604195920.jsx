@@ -262,33 +262,6 @@ const TaskDetails = () => {
                       </div>
                     );
                   })}
-                  {selectedAsset && (
-  <div
-    className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-    onClick={() => setSelectedAsset(null)}
-  >
-    <div className="bg-white p-4 rounded max-w-4xl w-full h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-      <button
-        className="mb-4 text-sm text-red-500 hover:text-red-700"
-        onClick={() => setSelectedAsset(null)}
-      >
-        Close Preview
-      </button>
-      {selectedAsset.endsWith(".jpg") || selectedAsset.endsWith(".jpeg") || selectedAsset.endsWith(".png") ? (
-        <img src={`http://localhost:5000/uploads/${selectedAsset}`} alt="preview" className="w-full max-h-[80vh] object-contain" />
-      ) : selectedAsset.endsWith(".pdf") ? (
-        <iframe
-          src={`http://localhost:5000/uploads/${selectedAsset}`}
-          title="PDF Preview"
-          className="w-full h-[80vh] border"
-        />
-      ) : (
-        <p className="text-gray-600">Unsupported file type</p>
-      )}
-    </div>
-  </div>
-)}
-
                 </div>
               </div>
             </div>

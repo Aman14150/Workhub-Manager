@@ -6,8 +6,6 @@ import morgan from "morgan";
 import { errorHandler, routeNotFound } from "./middlewares/errorMiddlewares.js";
 import routes from "./routes/index.js";
 import connectDb from './config/db.js'; // Importing DB connection
-import path from "path";
-import { fileURLToPath } from "url";
 import { createJWT } from './utils/jwt.js';  // Importing JWT utility
 
 // Establish database connection
@@ -16,9 +14,6 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 // Establish database connection
 connectDb(); // Call this function here
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -45,8 +40,9 @@ app.use("/api", routes);
 app.use(routeNotFound);
 app.use(errorHandler);
 
+// Serve 'uploads' folder as static
 // This will make 'uploads/' folder public and accessible
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Start the server
 app.listen(PORT, () => {

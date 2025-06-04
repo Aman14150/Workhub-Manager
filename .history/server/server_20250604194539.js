@@ -48,6 +48,7 @@ app.use(errorHandler);
 // This will make 'uploads/' folder public and accessible
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

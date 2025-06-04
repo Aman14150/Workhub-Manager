@@ -17,9 +17,6 @@ const PORT = process.env.PORT || 5000;
 // Establish database connection
 connectDb(); // Call this function here
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 
 // Enable Cross-Origin Resource Sharing (CORS)
@@ -46,7 +43,7 @@ app.use(routeNotFound);
 app.use(errorHandler);
 
 // This will make 'uploads/' folder public and accessible
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Start the server
 app.listen(PORT, () => {

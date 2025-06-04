@@ -242,53 +242,20 @@ const TaskDetails = () => {
                             className='w-full h-full object-cover rounded cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50'
                           />
                         )}
-                        {(isImage || isPDF) && (
-                        <div
-                          className='w-full h-full bg-gray-200 rounded text-center flex items-center justify-center font-semibold text-blue-700 cursor-pointer'
-                          onClick={() => setSelectedAsset(el)}
-                        >
-                          {isImage ? (
-                            <img
-                              src={`http://localhost:5000/uploads/${el}`}
-                              alt={`asset-${index}`}
-                              className='w-full h-full object-cover rounded'
-                            />
-                          ) : (
-                            <>View PDF #{index + 1}</>
-                          )}
-                        </div>
-                      )}
+                        {isPDF && (
+  <a
+    href={`http://localhost:5000/uploads/${el}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className='block w-full h-full bg-gray-200 rounded text-center flex items-center justify-center font-semibold text-blue-700 hover:underline'
+  >
+    View PDF #{index + 1}
+  </a>
+)}
 
                       </div>
                     );
                   })}
-                  {selectedAsset && (
-  <div
-    className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-    onClick={() => setSelectedAsset(null)}
-  >
-    <div className="bg-white p-4 rounded max-w-4xl w-full h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-      <button
-        className="mb-4 text-sm text-red-500 hover:text-red-700"
-        onClick={() => setSelectedAsset(null)}
-      >
-        Close Preview
-      </button>
-      {selectedAsset.endsWith(".jpg") || selectedAsset.endsWith(".jpeg") || selectedAsset.endsWith(".png") ? (
-        <img src={`http://localhost:5000/uploads/${selectedAsset}`} alt="preview" className="w-full max-h-[80vh] object-contain" />
-      ) : selectedAsset.endsWith(".pdf") ? (
-        <iframe
-          src={`http://localhost:5000/uploads/${selectedAsset}`}
-          title="PDF Preview"
-          className="w-full h-[80vh] border"
-        />
-      ) : (
-        <p className="text-gray-600">Unsupported file type</p>
-      )}
-    </div>
-  </div>
-)}
-
                 </div>
               </div>
             </div>
