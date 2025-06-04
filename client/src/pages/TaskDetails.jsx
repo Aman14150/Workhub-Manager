@@ -80,16 +80,17 @@ const TASKTYPEICON = {
 };
 
 const act_types = [
-  "Started",
-  "Completed",
-  "In Progress",
-  "Commented",
-  "Bug",
-  "Assigned",
+  "started",
+  "completed",
+  "in progress",
+  "commented",
+  "bug",
+  "assigned",
 ];
 
 const TaskDetails = () => {
-const { id } = useParams();
+  
+  const { id } = useParams();
   const [selected, setSelected] = useState(0);
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -98,6 +99,7 @@ const { id } = useParams();
     const fetchTask = async () => {
       try {
         const { data } = await axios.get(`/api/task/${id}`);
+        console.log("data of task assets",data)
         setTask(data.task);
         setLoading(false);
       } catch (error) {
@@ -221,7 +223,7 @@ const { id } = useParams();
                   </div>
                 </div>
               </div>
-              {/* RIGHT */}
+              {/* RIGHT 
               <div className='w-full md:w-1/2 space-y-8'>
                 <p className='text-lg font-semibold'>ASSETS</p>
 
@@ -236,6 +238,7 @@ const { id } = useParams();
                   ))}
                 </div>
               </div>
+              */}
             </div>
           </>
         ) : (
@@ -248,12 +251,59 @@ const { id } = useParams();
   );
 };
 
-const Activities = ({ activity, id }) => {
+const Activities = ({ activity: initialActivity, id }) => {
   const [selected, setSelected] = useState(act_types[0]);
   const [text, setText] = useState("");
-  const isLoading = false;
+  const [isLoading, setIsLoading] = useState(false);
+  const [activity, setActivity] = useState(initialActivity);
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    if (!selected || !text.trim()) {
+      alert("Please fill all fields before submitting.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`/api/task/activity/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: selected,
+          activity: text,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text(); // Catch non-JSON error
+        throw new Error(errorText || "Failed to add activity.");
+      }
+
+      const result = await response.json();
+
+      // Fetch the updated task activities from the backend
+      const updatedTaskResponse = await fetch(`/api/task/${id}`);
+      if (!updatedTaskResponse.ok) {
+        throw new Error("Failed to fetch updated activities.");
+      }
+
+      const updatedTask = await updatedTaskResponse.json();
+      console.log("updatedTask", updatedTask);
+      setActivity(updatedTask.task.activities);
+      setText(""); 
+      alert("Activity added successfully!");
+      
+    } catch (error) {
+      console.error("Error submitting activity:", error);
+      alert(error.message || "An error occurred. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   const Card = ({ item }) => {
     return (
@@ -269,7 +319,7 @@ const Activities = ({ activity, id }) => {
 
         <div className='flex flex-col gap-y-1 mb-8'>
           <p className='font-semibold'>{item?.by?.name}</p>
-          <div className='text-gray-500 space-y-2'>
+          <div className='text-gray-500 space-y-2 space-x-2 gap-2'>
             <span className='capitalize'>{item?.type}</span>
             <span className='text-sm'>{moment(item?.date).fromNow()}</span>
           </div>
